@@ -16,3 +16,5 @@ docs/src/plots/*
 .idea
 
 build/*
+
+Manifest.toml
