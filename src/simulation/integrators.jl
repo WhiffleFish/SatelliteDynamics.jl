@@ -13,14 +13,12 @@ Arguments:
 - `f::Function` Function for integration. 
 - `auxParams::Dict`
 """
-struct RK4
-    f::Function
-    auxParams
+struct RK4{F<:Function, P}
+    f::F
+    auxParams::P
 end
 
-function RK4(f::Function; kwargs...)
-    return RK4(f, kwargs)
-end
+RK4(f::Function; kwargs...) = RK4(f, kwargs)
 
 """
 Internal funciton used to compute the variational matrix.
@@ -73,7 +71,7 @@ function varmat(rk4::RK4, epc::Union{Real,Epoch}, x::AbstractArray{<:Real, 1}; a
     return V
 end
 
-function istep(rk4::RK4, epc::Union{Real,Epoch}, dt::Real, x::AbstractArray{<:Real, 1})
+function istep(rk4::RK4, epc::Union{Real,Epoch}, dt::Real, x::AbstractArray)
     # Compute State coefficients
 
     # Perform internal steps

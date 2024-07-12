@@ -50,7 +50,7 @@ function fderiv_earth_orbit(epc::Epoch, x::AbstractArray{<:Real} ;
     r_moon = moon_position(epc)
 
     # Compute acceleration
-    a = zeros(Float64, 3)
+    a::Vector{Float64} = zeros(Float64, 3)
 
     a += accel_gravity(x, R, n_grav, m_grav)
 
@@ -58,7 +58,7 @@ function fderiv_earth_orbit(epc::Epoch, x::AbstractArray{<:Real} ;
     if drag
         # Use PN*x[1:3] to compute the satellite position in the true-of-date inertial frame
         rho = density_nrlmsise00(epc, geod)
-        a  += accel_drag(x, rho, mass, area_drag, coef_drag, Array{Real, 2}(PN))
+        a  += accel_drag(x, rho, mass, area_drag, coef_drag, PN)
     end
 
     # Solar Radiation Pressure
@@ -124,12 +124,12 @@ Parameters:
 - `relativity::Bool`: Include relativistic effects in force model (Default: `true`)
 
 """
-mutable struct EarthInertialState
-    rk4::RK4
-    dt::Real
-    epc::Epoch
-    x::AbstractArray{Float64, 1}
-    phi::Union{Nothing, Array{Float64, 2}}
+mutable struct EarthInertialState{R<:RK4, DT, EPC<:Epoch, XT<:AbstractVector{Float64}, PHI<:Union{Nothing, Matrix{Float64}}}
+    rk4::R
+    dt::DT
+    epc::EPC
+    x::XT
+    phi::PHI
 end
 
 function EarthInertialState(epc::Epoch, x::AbstractArray{<:Real, 1}, phi::Union{Nothing, Array{Float64, 2}}=nothing; dt::Real=30.0, kwargs...)
@@ -151,7 +151,7 @@ function step!(state::EarthInertialState, dt::Real=0.0)
         dt = state.h
     end
 
-    if state.phi == nothing
+    if isnothing(state.phi)
         # If no state transition matrix is provided integrate 
         # without propagating variational equations
         state.x = istep(state.rk4, state.epc, dt, state.x)

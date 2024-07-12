@@ -8,7 +8,7 @@ using Suppressor
 using LinearAlgebra
 using SOFA
 
-using StaticArrays: SVector, SMatrix
+using StaticArrays
 
 # Define constants for array indexing
 const idx1t3 = SVector(1, 2, 3)

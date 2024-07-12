@@ -546,7 +546,7 @@ References:
 function accel_drag(x::AbstractArray{<:Real, 1}, rho::Real, mass::Real, area::Real, Cd::Real, T::AbstractArray{<:Real, 2})
 
     # Constants
-    omega = [0, 0, OMEGA_EARTH]
+    omega = SA[0, 0, OMEGA_EARTH]
 
     # Position and velocity in true-of-date system
     r_tod = T * x[1:3]

@@ -274,7 +274,7 @@ SatelliteDynamics.EOP = EarthOrientationData(:FINALS_2000)
 This global variable defaults to use the module's internal version of `"FINALS_2000"` 
 if it is not otherwise set/provided.
 """
-global EOP = EarthOrientationData(:FINALS_2000)
+global EOP::EarthOrientationData = EarthOrientationData(:FINALS_2000)
 
 # Access Methods
 export UT1_UTC
@@ -569,7 +569,7 @@ struct GravModel
     GM::Float64
     n_max::Int64
     m_max::Int64
-    data::AbstractArray{Float64, 2}
+    data::Matrix{Float64}
 end
 
 function GravModel(filepath::String)
@@ -640,7 +640,7 @@ SatelliteDynamics.GravityModel = GravityModel(PATH_TO_YOUR_GRAVITY_MODEL)
 
 This global variable defaults to use the module's internal version of the EGM2008 model truncated to order and degree 90, if it is not otherwise set.
 """
-global GRAVITY_MODEL = GravModel(abspath(@__DIR__, "../data/EGM2008_90.gfc"))
+global GRAVITY_MODEL::GravModel = GravModel(abspath(@__DIR__, "../data/EGM2008_90.gfc"))
 
 export load_gravity_model
 """

@@ -17,9 +17,9 @@ include("nrlmsise00_data.jl")
 Internal data structure used for setting model parameters
 """
 mutable struct NRLMSISE_Flags
-    switches::AbstractArray{<:Int, 1}
-    sw::AbstractArray{<:Real, 1}
-    swc::AbstractArray{<:Real, 1}
+    switches::Vector{Int}
+    sw::Vector{Float32}
+    swc::Vector{Float32}
 
     function NRLMSISE_Flags(switches::AbstractArray{<:Int, 1}=zeros(Int, 24),
             sw::AbstractArray{<:Real, 1}=zeros(Float32, 24),
@@ -51,7 +51,7 @@ mutable struct NRLMSISE_Input
     f107A::Float64  # 81 day average of F10.7cm flux (centered on day)
     f107::Float64   # Daily F10.7cm flux for previous day
     ap::Float64     # Magnetic index (daily)
-    ap_array::AbstractArray{<:Real, 1} # Magnetic index array
+    ap_array::Vector{Float64} # Magnetic index array
 
     function NRLMSISE_Input(year::Int=2000, doy::Int=1, sec::Float64=0.0, 
                 alt::Float64=0.0, g_lat::Float64=0.0, g_lon::Float64=0.0,
@@ -67,8 +67,8 @@ d = zeros(Float64, 9)
 t = zeros(Float64, 2)
 """
 mutable struct NRLMSISE_Output
-    d::AbstractArray{Float64, 1}
-    t::AbstractArray{Float64, 1}
+    d::Vector{Float64}
+    t::Vector{Float64}
 
     function NRLMSISE_Output(d::AbstractArray{<:Real, 1}=zeros(Float64, 9), t::AbstractArray{<:Real, 1}=zeros(Float64, 2))
         new(d, t)

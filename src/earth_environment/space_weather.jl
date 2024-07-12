@@ -176,7 +176,7 @@ SatelliteDynamics.SpaceWeather.SPACE_WEATHER_DATA = SpaceWeatherData(index_file)
 This global variable defaults used are pull from the Celestrak Space Weather
 data repository: https://celestrak.org/SpaceData/
 """
-global SPACE_WEATHER_DATA = SpaceWeatherData(abspath(@__DIR__, "../../data/sw19571001.txt"))
+global SPACE_WEATHER_DATA::SpaceWeatherData = SpaceWeatherData(abspath(@__DIR__, "../../data/sw19571001.txt"))
 
 export load_space_weather_data
 """
