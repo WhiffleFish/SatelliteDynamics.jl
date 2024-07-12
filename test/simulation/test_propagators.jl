@@ -35,7 +35,7 @@ let
     eci = sOSCtoCART(oe, use_degrees=true)
 
     # Initialize orbit
-    orb = EarthInertialState(epc, eci, dt=1.0)
+    orb = EarthInertialState(epc, eci, Matrix{Float64}(I(6)), dt=1.0)
     reinit!(orb) # Initialize STM to enable propagation
 
     # Set propagation period
@@ -60,7 +60,7 @@ let
     eci = sOSCtoCART(oe, use_degrees=true)
 
     # Initialize orbit
-    orb = EarthInertialState(epc, eci, dt=1.0)
+    orb = EarthInertialState(epc, eci, Matrix{Float64}(I(6)), dt=1.0)
     reinit!(orb) # Initialize STM to enable propagation
 
     # Set propagation period
