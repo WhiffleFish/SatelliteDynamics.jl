@@ -16,18 +16,13 @@ Returns:
 References:
 1. O. Montenbruck, and E. Gill, _Satellite Orbits: Models, Methods and Applications_, 2012, p.27.
 """
-function Rx(angle::Real ; use_degrees::Bool=false)
-    
-    if use_degrees
-        angle *= pi/180.0
-    end
-
-    c = cos(angle)
-    s = sin(angle)
-
-    return [ +1.0  0.0  0.0;
-              0.0 +c   +s;
-              0.0 -s   +c]
+function Rx(θ::Real ; use_degrees::Bool=false)
+    sθ, cθ = use_degrees ? sincosd(θ) : sincos(θ)
+    return [
+        1.0  0.0  0.0;
+        0.0 +cθ   +sθ;
+        0.0 -sθ   +cθ
+    ]
 end
 
 export Ry
@@ -44,18 +39,13 @@ Returns:
 References:
 1. O. Montenbruck, and E. Gill, _Satellite Orbits: Models, Methods and Applications_, 2012, p.27.
 """
-function Ry(angle::Real ; use_degrees::Bool=false)
-    
-    if use_degrees
-        angle *= pi/180.0
-    end
-
-    c = cos(angle)
-    s = sin(angle)
-
-    return [ +c    0.0 -s;
-              0.0 +1.0  0.0;
-             +s    0.0 +c]
+function Ry(θ::Real ; use_degrees::Bool=false)
+    sθ, cθ = use_degrees ? sincosd(θ) : sincos(θ)
+    return [
+        +cθ    0.0 -sθ;
+        0.0 +1.0  0.0;
+        +sθ    0.0 +cθ
+    ]
 end
 
 export Rz
@@ -72,18 +62,13 @@ Returns:
 References:
 1. O. Montenbruck, and E. Gill, _Satellite Orbits: Models, Methods and Applications_, 2012, p.27.
 """
-function Rz(angle::Real ; use_degrees::Bool=false)
-    
-    if use_degrees
-        angle *= pi/180.0
-    end
-
-    c = cos(angle)
-    s = sin(angle)
-
-    return [ +c    +s   0.0;
-             -s    +c   0.0;
-              0.0  0.0 +1.0]
+function Rz(θ::Real ; use_degrees::Bool=false)
+    sθ, cθ = use_degrees ? sincosd(θ) : sincos(θ)
+    return [
+        +cθ    +sθ   0.0;
+        -sθ    +cθ   0.0;
+        0.0  0.0 +1.0
+    ]
 end
 
 ###################
@@ -513,9 +498,7 @@ function Base.:+(q::Quaternion, n::Real)
             q.q3 + n]
 end
 
-function Base.:+(n::Real, q::Quaternion)
-    return q+n
-end
+Base.:+(n::Real, q::Quaternion) = q+n
 
 function Base.:*(qa::Quaternion, qb::Quaternion)
     # # Quaternion Multiplication
@@ -529,13 +512,9 @@ function Base.:*(qa::Quaternion, qb::Quaternion)
     return Quaternion(qcos, qvec...)
 end
 
-function Base.:*(q::Quaternion, n::Real)
-    return q[:]*n
-end
+Base.:*(q::Quaternion, n::Real) = q[:]*n
 
-function Base.:*(n::Real, q::Quaternion)
-    return q*n
-end
+Base.:*(n::Real, q::Quaternion) = q*n
 
 export slerp
 """
@@ -560,8 +539,8 @@ function slerp(q0::Quaternion, q1::Quaternion, t::Real)
     end
 
     # Extract vectors and normalize
-    q0 = copy(q0)[:]
-    q1 = copy(q1)[:]
+    q0 = q0[:]
+    q1 = q1[:]
 
     # Compute cosine of the angle between the two vectors
     dp = dot(q0, q1)

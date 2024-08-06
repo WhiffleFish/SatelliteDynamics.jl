@@ -147,8 +147,8 @@ Arguments:
 """
 function step!(state::EarthInertialState, dt::Real=0.0)
     # Set step size
-    if dt == 0.0
-        dt = state.h
+    if iszero(dt)
+        dt = state.dt # EarthInertialState has no field h
     end
 
     if isnothing(state.phi)
@@ -175,7 +175,7 @@ Arguments:
 a real number to advance the state by or the Epoch
 """
 function stepto!(state::EarthInertialState, time::Union{Real, Epoch}=0.0)
-    if typeof(time) <: Real
+    if time isa Real
         time = state.epc + time
     end
 
@@ -212,7 +212,7 @@ Returns:
 - `Phi::AbstractArray{Float64, 2}` Stacked array of state transition matrices
 """
 function sim!(state::EarthInertialState, time::Union{Real, Epoch}=0.0)
-    if typeof(time) <: Real
+    if time isa Real
         time = state.epc + time
     end
 
@@ -239,7 +239,7 @@ function sim!(state::EarthInertialState, time::Union{Real, Epoch}=0.0)
     t[idx]    = epc[idx] - epc[1]
     x[:, idx] = state.x
 
-    if state.phi != nothing
+    if !isnothing(state.phi)
         A[(1+n*(idx-1)):(n*idx), :] = state.phi
     end
 
@@ -258,13 +258,13 @@ function sim!(state::EarthInertialState, time::Union{Real, Epoch}=0.0)
         epc[idx]  = state.epc
         t[idx]    = epc[idx] - epc[1]
         x[:, idx] = state.x
-        if state.phi != nothing
+        if !isnothing(state.phi)
             A[(1+n*(idx-1)):(n*idx), :] = state.phi
         end
     end
 
     # Output
-    if state.phi != nothing
+    if !isnothing(state.phi)
         # Return with state transition matrix if used
         return t, epc, x, A
     end
@@ -272,6 +272,12 @@ function sim!(state::EarthInertialState, time::Union{Real, Epoch}=0.0)
     # Default return without STM 
     return t, epc, x
 end
+
+export sim
+
+sim(state::EarthInertialState, time::Union{Real, Epoch}=0.0) = sim!(deepcopy(state), time)
+
+
 
 export reinit!
 """

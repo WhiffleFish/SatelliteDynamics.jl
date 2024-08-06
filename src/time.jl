@@ -8,7 +8,7 @@ pertaining to the `Epoch` class.
 
 Valid systems are: `"GPS"`, `"TAI"`, `"TT"`, `"UTC"`, and `"UT1"`
 """
-VALID_TIME_SYSTEMS = ["GPS", "TAI", "TT", "UTC", "UT1"]
+const VALID_TIME_SYSTEMS = ["GPS", "TAI", "TT", "UTC", "UT1"]
 
 
 ####################

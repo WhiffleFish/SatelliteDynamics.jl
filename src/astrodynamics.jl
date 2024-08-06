@@ -12,12 +12,7 @@ Returns:
 """
 function mean_motion(a::Real; use_degrees::Bool=false, GM::Real=GM_EARTH)
     n = sqrt(GM/a^3)
-
-    if use_degrees
-        n *= 180.0/pi
-    end
-
-    return n
+    return use_degrees ? rad2deg(n) : n
 end
 
 export semimajor_axis
@@ -33,13 +28,8 @@ Returns:
 - `a::Real`: Semi-major axis. [m]
 """
 function semimajor_axis(n::Real; use_degrees::Bool=false, GM::Real=GM_EARTH)
-    if use_degrees
-        n *= pi/180.0
-    end
-
-    a = (GM/n^2)^(1.0/3.0)
-
-    return a
+    use_degrees && (n = deg2rad(n))
+    return (GM/n^2)^(1.0/3.0)
 end
 
 export orbit_period
@@ -53,9 +43,7 @@ Arguments:
 Returns:
 - `T::Real`: Orbital period. [s]
 """
-function orbit_period(a::Real; GM::Real=GM_EARTH)
-    return 2.0*pi*sqrt(a^3/GM)
-end
+orbit_period(a::Real; GM::Real=GM_EARTH) = 2π*sqrt(a^3/GM)
 
 export sun_sync_inclination
 """
@@ -80,11 +68,7 @@ function sun_sync_inclination(a::Real, e::Real; use_degrees::Bool=false)
     # Inclination required for sun-synchronous orbits
     i_ss = acos(-2*a^(7/2)*OMEGA_DOT_SS*(1-e^2)^2/(3*(R_EARTH^2)*J2_EARTH*sqrt(GM_EARTH)))
 
-    if use_degrees == true
-        i_ss *= 180.0/pi
-    end
-
-    return i_ss
+    return use_degrees ? rad2deg(i_ss) : i_ss
 end
 
 export anomaly_eccentric_to_mean
@@ -101,19 +85,13 @@ Returns:
 """
 function anomaly_eccentric_to_mean(E::Real, e::Real; use_degrees::Bool=false)
     # Convert degree input
-    if use_degrees == true
-        E *= pi/180.0
-    end
+    use_degrees && (E = deg2rad(E))
 
     # Convert eccentric to mean
     M = E - e*sin(E)
 
     # Convert degree output
-    if use_degrees == true
-        M *= 180.0/pi
-    end
-
-    return M
+    return use_degrees ? rad2deg(M) : M
 end
 
 export anomaly_mean_to_eccentric
@@ -130,9 +108,7 @@ Returns:
 """
 function anomaly_mean_to_eccentric(M::Real, e::Real; use_degrees::Bool=false)
     # Convert degree input
-    if use_degrees == true
-        M *= pi/180.0
-    end
+    use_degrees && (M = deg2rad(M))
 
     # Convert mean to eccentric
     max_iter = 15
@@ -163,11 +139,7 @@ function anomaly_mean_to_eccentric(M::Real, e::Real; use_degrees::Bool=false)
     end
 
     # Convert degree output
-    if use_degrees == true
-        E *= 180.0/pi
-    end
-
-    return E
+    return use_degrees ? rad2deg(E) : E
 end
 
 export sOSCtoCART
@@ -192,7 +164,7 @@ Arguments:
 """
 function sOSCtoCART(x_oe::AbstractArray{<:Real, 1}; use_degrees::Bool=false, GM::Real=GM_EARTH)
 
-    if use_degrees == true
+    if use_degrees
         # Copy and convert input from degrees to radians if necessary
         oe = deepcopy(x_oe)
         oe[3:6] = oe[3:6]*pi/180.0
@@ -274,19 +246,15 @@ function sCARTtoOSC(x::AbstractArray{<:Real, 1}; use_degrees::Bool=false, GM::Re
     omega = u - nu                                     # Argument of perigee
 
     # Correct angles to run from 0 to 2PI
-    OMEGA = OMEGA + 2.0*pi
-    omega = omega + 2.0*pi
-    M     = M     + 2.0*pi
-
-    OMEGA = mod(OMEGA, 2.0*pi)
-    omega = mod(omega, 2.0*pi)
-    M     = mod(M, 2.0*pi)
+    OMEGA = mod2pi(OMEGA)
+    omega = mod2pi(omega)
+    M = mod2pi(omega)
 
     # Create Orbital Element Vector
     x_oe = [a, e, i, OMEGA, omega, M]
 
     # Convert output to degrees if necessary
-    if use_degrees == true
+    if use_degrees
         x_oe[3:6] = x_oe[3:6]*180.0/pi
     end
 
