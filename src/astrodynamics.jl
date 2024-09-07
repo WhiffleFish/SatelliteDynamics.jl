@@ -196,6 +196,37 @@ function sOSCtoCART(x_oe::AbstractArray{<:Real, 1}; use_degrees::Bool=false, GM:
     return x
 end
 
+function sOSCtoCART(x_oe::SVector; use_degrees::Bool=false, GM::Real=GM_EARTH)
+    oe = MVector(x_oe)
+    if use_degrees
+        # Copy and convert input from degrees to radians if necessary
+        oe[3:6] = x_oe[3:6]*pi/180.0
+    end
+    
+    # Unpack input
+    a, e, i, RAAN, omega, M = oe
+
+    E = anomaly_mean_to_eccentric(M, e)
+
+    # Create perifocal coordinate vectors
+    P    = zeros(Float64, 3)
+    P[1] = cos(omega)*cos(RAAN) - sin(omega)*cos(i)*sin(RAAN)
+    P[2] = cos(omega)*sin(RAAN) + sin(omega)*cos(i)*cos(RAAN)
+    P[3] = sin(omega)*sin(i)
+
+    Q    = zeros(Float64, 3)
+    Q[1] = -sin(omega)*cos(RAAN) - cos(omega)*cos(i)*sin(RAAN)
+    Q[2] = -sin(omega)*sin(RAAN) + cos(omega)*cos(i)*cos(RAAN)
+    Q[3] =  cos(omega)*sin(i)
+
+    # Find 3-Dimensional Position
+    x = @MArray zeros(Float64, 6)
+    x[1:3] = a*(cos(E)-e)*P + a*sqrt(1-e*e)*sin(E)*Q
+    x[4:6] = sqrt(GM*a)/norm(x[1:3])*(-sin(E)*P + sqrt(1-e*e)*cos(E)*Q)
+
+    return SVector(x)
+end
+
 export sCARTtoOSC
 """
 Given a Cartesean position and velocity in the inertial frame, return the 
