@@ -217,7 +217,7 @@ Return:
 References:
 1. O. Montenbruck, and E. Gill, _Satellite Orbits: Models, Methods and Applications_, 2012, p.56-68.
 """
-function accel_gravity(x::AbstractArray{<:Real, 1}, R_eci_ecef::AbstractArray{<:Real, 2}, n_max::Int=20, m_max::Int=20)
+function accel_gravity(x::AbstractVector, R_eci_ecef::AbstractArray{<:Real, 2}, n_max::Int=20, m_max::Int=20)
     
     # Check Limits of Gravity Field
     if n_max > GRAVITY_MODEL.n_max
@@ -337,7 +337,7 @@ function moon_position(epc::Epoch)
         - 171e3*cos(l+2*D) - 152e3*cos(l+lp-2*D)   
 
     # Equatorial coordinates
-    p_moon = Rx(-epsilon) * [r*cos(L)*cos(B), r*sin(L)*cos(B), r*sin(B)]
+    p_moon = Rx(-epsilon) * SA[r*cos(L)*cos(B), r*sin(L)*cos(B), r*sin(B)]
 
     return p_moon
 end

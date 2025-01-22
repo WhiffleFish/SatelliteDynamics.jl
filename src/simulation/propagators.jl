@@ -8,7 +8,7 @@ Compute the state derivative.
 
 Arguments:
 - `epc::Epoch`: Current epoch
-- `x::AbstractArray{<:Real, 1}`: Satellite state vector
+- `x::AbstractVector`: Satellite state vector
 - `mass::Real`: Satellite mass [kg]
 - `area_drag`: Velocity-facing area affected by drag. [m^2]
 - `coef_drag`: Coefficient of drag [dimensionless]
@@ -25,7 +25,7 @@ Arguments:
 Returns:
 - `dx::AbstractArray{<:Float64, 1}`: Satellite state derivative, velocity and accelerations [m; m/s]
 """
-function fderiv_earth_orbit(epc::Epoch, x::AbstractArray{<:Real} ;
+function fderiv_earth_orbit(epc::Epoch, x::AbstractVector ;
              mass::Real=1.0, area_drag::Real=1.0, coef_drag::Real=2.3, 
              area_srp::Real=1.0, coef_srp::Real=1.8, 
              n_grav::Integer=20, m_grav::Integer=20, 
@@ -33,8 +33,8 @@ function fderiv_earth_orbit(epc::Epoch, x::AbstractArray{<:Real} ;
              relativity::Bool=true)
     
     # Extract position and velocity
-    r = x[1:3]
-    v = x[4:6]
+    r = x[idx1t3]
+    v = x[idx4t6]
 
     # Compute ECI to ECEF Transformation -> IAU2010 Theory
     PN = bias_precession_nutation(epc)

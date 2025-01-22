@@ -18,7 +18,7 @@ References:
 """
 function Rx(θ::Real ; use_degrees::Bool=false)
     sθ, cθ = use_degrees ? sincosd(θ) : sincos(θ)
-    return [
+    return SA[
         1.0  0.0  0.0;
         0.0 +cθ   +sθ;
         0.0 -sθ   +cθ

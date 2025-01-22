@@ -9,11 +9,12 @@ using LinearAlgebra
 using SOFA
 
 using StaticArrays
+using StaticArrays: SUnitRange
 
 # Define constants for array indexing
-const idx1t3 = SVector(1, 2, 3)
-const idx4t6 = SVector(4, 5, 6)
-const idx1t6 = SVector(1, 2, 3, 4, 5, 6)
+const idx1t3 = SUnitRange(1,3) # SVector(1, 2, 3)
+const idx4t6 = SUnitRange(4,6) # SVector(4, 5, 6)
+const idx1t6 = SUnitRange(1,6) # SVector(1, 2, 3, 4, 5, 6)
 
 # Includes
 include("constants.jl")
