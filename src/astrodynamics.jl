@@ -28,7 +28,7 @@ Returns:
 - `a::Real`: Semi-major axis. [m]
 """
 function semimajor_axis(n::Real; use_degrees::Bool=false, GM::Real=GM_EARTH)
-    use_degrees && (n = deg2rad(n))
+    use_degrees && (n=deg2rad(n))
     return (GM/n^2)^(1.0/3.0)
 end
 
@@ -112,22 +112,18 @@ function anomaly_mean_to_eccentric(M::Real, e::Real; use_degrees::Bool=false)
 
     # Convert mean to eccentric
     max_iter = 15
-    epsilson = eps(Float64)*100.0
+    epsilon = eps(Float64)*100.0
 
     # Initialize starting values
     M = mod(M, 2.0*pi)
-    if e < 0.8
-        E = M
-    else
-        E = pi
-    end
+    E = e < 0.8 ? M : π
 
     # Initialize working variable
     f = E - e*sin(E) - M
     i = 0
 
     # Iterate until convergence
-    while abs(f) > epsilson
+    while abs(f) > epsilon
         f = E - e*sin(E) - M
         E = E - f / (1.0 - e*cos(E))
 
@@ -155,14 +151,14 @@ The osculating elements are assumed to be (in order):
 6. _M_, Mean anomaly [rad]
 
 Arguments:
-- x_oe `x::AbstractArray{<:Real, 1}`: Osculating orbital elements. See above for desription of the elements and their required order.
+- x_oe `x::AbstractVector`: Osculating orbital elements. See above for desription of the elements and their required order.
 - `use_degrees:Bool`: If `true` interpret input will be interpreted as being in degrees, and output will be returned in degrees.
 - `GM::Real`: Gravitational constant of central body. Defaults to `SatelliteDynamics.GM_EARTH` if none is provided.
 
 # Returns
-- x `x::AbstractArray{<:Real, 1}`: Cartesean inertial state. Returns position and velocity. [m; m/s]
+- x `x::AbstractVector`: Cartesean inertial state. Returns position and velocity. [m; m/s]
 """
-function sOSCtoCART(x_oe::AbstractArray{<:Real, 1}; use_degrees::Bool=false, GM::Real=GM_EARTH)
+function sOSCtoCART(x_oe::AbstractVector; use_degrees::Bool=false, GM::Real=GM_EARTH)
 
     if use_degrees
         # Copy and convert input from degrees to radians if necessary
@@ -196,37 +192,6 @@ function sOSCtoCART(x_oe::AbstractArray{<:Real, 1}; use_degrees::Bool=false, GM:
     return x
 end
 
-function sOSCtoCART(x_oe::SVector; use_degrees::Bool=false, GM::Real=GM_EARTH)
-    oe = MVector(x_oe)
-    if use_degrees
-        # Copy and convert input from degrees to radians if necessary
-        oe[3:6] = x_oe[3:6]*pi/180.0
-    end
-    
-    # Unpack input
-    a, e, i, RAAN, omega, M = oe
-
-    E = anomaly_mean_to_eccentric(M, e)
-
-    # Create perifocal coordinate vectors
-    P    = zeros(Float64, 3)
-    P[1] = cos(omega)*cos(RAAN) - sin(omega)*cos(i)*sin(RAAN)
-    P[2] = cos(omega)*sin(RAAN) + sin(omega)*cos(i)*cos(RAAN)
-    P[3] = sin(omega)*sin(i)
-
-    Q    = zeros(Float64, 3)
-    Q[1] = -sin(omega)*cos(RAAN) - cos(omega)*cos(i)*sin(RAAN)
-    Q[2] = -sin(omega)*sin(RAAN) + cos(omega)*cos(i)*cos(RAAN)
-    Q[3] =  cos(omega)*sin(i)
-
-    # Find 3-Dimensional Position
-    x = @MArray zeros(Float64, 6)
-    x[1:3] = a*(cos(E)-e)*P + a*sqrt(1-e*e)*sin(E)*Q
-    x[4:6] = sqrt(GM*a)/norm(x[1:3])*(-sin(E)*P + sqrt(1-e*e)*cos(E)*Q)
-
-    return SVector(x)
-end
-
 export sCARTtoOSC
 """
 Given a Cartesean position and velocity in the inertial frame, return the 
@@ -241,14 +206,14 @@ The osculating elements are assumed to be (in order):
 6. _M_, Mean anomaly [rad]
 
 Arguments:
-- x `x::AbstractArray{<:Real, 1}`: Cartesean inertial state. Returns position and velocity. [m; m/s]
+- x `x::AbstractVector`: Cartesean inertial state. Returns position and velocity. [m; m/s]
 - `use_degrees:Bool`: If `true` interpret input will be interpreted as being in degrees, and output will be returned in degrees.
 - `GM::Real`: Gravitational constant of central body. Defaults to `SatelliteDynamics.GM_EARTH` if none is provided.
 
 # Returns
-- x_oe `x::AbstractArray{<:Real, 1}`: Osculating orbital elements. See above for desription of the elements and their required order.
+- x_oe `x::AbstractVector`: Osculating orbital elements. See above for desription of the elements and their required order.
 """
-function sCARTtoOSC(x::AbstractArray{<:Real, 1}; use_degrees::Bool=false, GM::Real=GM_EARTH)
+function sCARTtoOSC(x::AbstractVector; use_degrees::Bool=false, GM::Real=GM_EARTH)
 
     # Initialize Cartesian Polistion and Velocity
     r = x[1:3]
@@ -277,17 +242,19 @@ function sCARTtoOSC(x::AbstractArray{<:Real, 1}; use_degrees::Bool=false, GM::Re
     omega = u - nu                                     # Argument of perigee
 
     # Correct angles to run from 0 to 2PI
-    OMEGA = mod2pi(OMEGA)
-    omega = mod2pi(omega)
-    M = mod2pi(omega)
+    OMEGA = OMEGA + 2.0*pi
+    omega = omega + 2.0*pi
+    M     = M     + 2.0*pi
+
+    OMEGA = mod(OMEGA, 2.0*pi)
+    omega = mod(omega, 2.0*pi)
+    M     = mod(M, 2.0*pi)
 
     # Create Orbital Element Vector
     x_oe = [a, e, i, OMEGA, omega, M]
 
     # Convert output to degrees if necessary
-    if use_degrees
-        x_oe[3:6] = x_oe[3:6]*180.0/pi
-    end
+    use_degrees && (@. x_oe[3:6] = x_oe[3:6]*180.0/π)
 
     return x_oe
 end
