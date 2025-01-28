@@ -82,7 +82,9 @@ end
 
 let
     oe  = [R_EARTH + 500e3, 0, 90.0, 0, 0, 0]
+    s_oe = SVector{6, Float64}(oe)
     eci = sOSCtoCART(oe, use_degrees=true)
+    s_eci = sOSCtoCART(s_oe, use_degrees=true)
 
     tol = 1e-6
     @test isapprox(eci[1], R_EARTH + 500e3, atol=tol)
@@ -91,13 +93,16 @@ let
     @test isapprox(eci[4], 0.0, atol=tol)
     @test isapprox(eci[5], 0.0, atol=tol)
     @test isapprox(eci[6], sqrt(GM_EARTH/(R_EARTH + 500e3)), atol=tol)
+    @test all(eci .== s_eci)
 end
 
 let 
     # Using radians
     oe   = [R_EARTH + 500e3, 0, pi/2.0, 0, 0, 0]
+    s_oe = SVector{6, Float64}(oe)
     eci  = sOSCtoCART(oe, use_degrees=false)
     eci2 = sOSCtoCART(oe, use_degrees=false)
+    s_eci = sOSCtoCART(s_oe, use_degrees=false)
 
     tol = 1e-6
     @test isapprox(eci[1], eci2[1], atol=tol)
@@ -106,7 +111,7 @@ let
     @test isapprox(eci[4], eci2[4], atol=tol)
     @test isapprox(eci[5], eci2[5], atol=tol)
     @test isapprox(eci[6], eci2[6], atol=tol)  
-
+    @test all(eci .== s_eci)
     # Using degrees
     oe   = [R_EARTH + 500e3, 0, 90.0, 0, 0, 0]
     eci  = sOSCtoCART(oe, use_degrees=true)

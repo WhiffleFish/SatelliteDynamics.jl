@@ -4,6 +4,7 @@ using Random
 using LinearAlgebra
 using Logging
 using Printf
+using StaticArrays
 
 # Package under test
 using SatelliteDynamics
